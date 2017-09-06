@@ -5,7 +5,8 @@ import Prelude
 import Control.Apply (lift2)
 import Control.Monad.Rec.Class (Step(..), tailRec)
 import Data.Foldable (class Foldable, foldMap, foldlDefault, foldrDefault)
-import Data.List (List(..), head, snoc, tail, (:))
+import Data.Generic (class Generic, gEq, gShow)
+import Data.List (List(..), snoc, (:))
 import Data.Monoid (power)
 import Data.Traversable (class Traversable, sequenceDefault, traverse)
 
@@ -24,6 +25,14 @@ mkTree a cs = Node { value: a, children: cs }
 infix 5 mkTree as |>
 
 -- Instances
+
+derive instance genericTree :: Generic a => Generic (Tree a)
+
+instance eqTree :: Generic a => Eq (Tree a) where
+  eq = gEq
+
+instance showTree' :: Generic a => Show (Tree a) where
+  show = gShow
 
 instance functorTree :: Functor Tree where
   map f (Node {value:v, children: c}) = mkTree (f v) (tailRec go {current: c, result: Nil})
