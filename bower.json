@@ -1,5 +1,6 @@
 {
   "name": "purescript-tree",
+  "license": "MIT",
   "ignore": [
     "**/.*",
     "node_modules",
