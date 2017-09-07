@@ -8,7 +8,7 @@ import Data.Foldable (class Foldable, foldMap, foldlDefault, foldrDefault)
 import Data.Generic (class Generic, gEq, gShow)
 import Data.List (List(..), snoc, (:))
 import Data.Monoid (power)
-import Data.Traversable (class Traversable, sequenceDefault, traverse)
+import Data.Traversable (class Traversable, Accum, sequenceDefault, traverse)
 
 -- | A Rose, or multi-way tree, with values of type `a`.
 newtype Tree a = Node { value :: a
@@ -95,6 +95,19 @@ scanTree f b n@(Node {value: x, children: xs}) =
     go {b: b', current: c:cs, final: final} = 
       let fb' = f (nodeValue c) b' 
       in Loop {b: b', current: cs, final: snoc final (fb' |> tailRec go {b: fb', current: (nodeChildren c), final: Nil})}
+
+-- | Scan a `Tree`, accumulating values of `b` there are constant across `Node`s
+-- | that have the same parent, and returning a `Tree` of type `c`.
+scanTreeAccum :: forall a b c. (a -> b -> Accum b c) -> b -> Tree a -> Tree c
+scanTreeAccum f b n@(Node {value: x, children: xs}) = 
+  let fb = f x b 
+  in fb.value |> (tailRec go {b: fb.accum , current: xs, final: Nil})
+  where
+    go :: _ -> Step _ (Forest c)
+    go {b: b', current: Nil, final: final} = Done final
+    go {b: b', current: c:cs, final: final} = 
+      let fb' = f (nodeValue c) b' 
+      in Loop {b: b', current: cs, final: snoc final (fb'.value |> tailRec go {b: fb'.accum, current: (nodeChildren c), final: Nil})}
 
 -- Setters and getters
 nodeValue :: forall a. Tree a -> a 
