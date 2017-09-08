@@ -229,6 +229,39 @@ delete l@(Loc r) =
                         , parents: parents c
                         }
 
+-- Searches
+
+-- | Search for the first occurence of the value `a` downwards and to the right.
+findDown :: forall a. Eq a => a -> Loc a -> Maybe (Loc a)
+findDown a l@(Loc r) = 
+  if a == (value l) 
+    then (Just l) 
+    else 
+      case next l of
+        Just n -> findDown a n
+        Nothing ->
+          case down l of
+            Just n' -> findDown a n'
+            Nothing -> Nothing            
+
+-- | Search for the first occurence of the value `a` upwards and to the left.
+findUp :: forall a. Eq a => a -> Loc a -> Maybe (Loc a)
+findUp a l@(Loc r) = 
+  if a == (value l) 
+    then (Just l) 
+    else 
+      case prev l of
+        Just n -> findUp a n
+        Nothing ->
+          case up l of
+            Just n' -> findUp a n'
+            Nothing -> Nothing            
+
+-- | Search for the first occurence of the value `a` starting from the root of
+-- | the tree.
+findFromRoot :: forall a. Eq a => a -> Loc a -> Maybe (Loc a)
+findFromRoot a = (findDown a) <<< root
+
 -- Setters and Getters
 node :: forall a. Loc a -> Tree a 
 node (Loc r) = r.node
