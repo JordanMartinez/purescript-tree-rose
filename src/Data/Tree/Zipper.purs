@@ -2,10 +2,16 @@ module Data.Tree.Zipper where
 
 import Prelude
 
+import Control.Comonad.Cofree (head, tail, (:<))
 import Data.Generic (class Generic, gEq, gShow)
 import Data.List (List(..), drop, reverse, take, (!!), (:))
 import Data.Maybe (Maybe(..))
-import Data.Tree (Forest, Tree(..), mkTree, modifyNodeValue, nodeChildren, nodeValue, setNodeValue)
+import Data.Tree (Forest, Tree, mkTree, modifyNodeValue, setNodeValue)
+
+-- import Data.Generic (class Generic, gEq, gShow)
+-- import Data.List (List(..), drop, reverse, take, (!!), (:))
+-- import Data.Maybe (Maybe(..))
+-- import Data.Tree (Forest, Tree(..), mkTree, modifyNodeValue, nodeChildren, nodeValue, setNodeValue)
 
 -- | The `Loc` type describes the location of a `Node` inside a `Tree`. For this
 -- | we store the current `Node`, the sibling nodes that appear before the current
@@ -22,16 +28,14 @@ newtype Loc a = Loc { node :: Tree a
                     , parents :: List (Loc a) 
                     }
 
+instance eqLoc :: Eq a => Eq (Loc a) where
+  eq (Loc r1) (Loc r2) = 
+       r1.node == r2.node
+    && r1.before == r2.before
+    && r1.after == r2.after
+    && r1.parents == r2.parents
 
-derive instance genericLoc :: Generic a => Generic (Loc a)
-
-instance showLoc :: Generic a => Show (Loc a) where
-  show = gShow
-
-instance eqLoc :: Generic a => Eq (Loc a) where
-  eq = gEq
-
--- Cursor movement
+-- -- Cursor movement
 
 -- | Move the cursor to the next sibling.
 next :: forall a. Loc a -> Maybe (Loc a)
@@ -44,7 +48,7 @@ next (Loc r) =
                          , parents: r.parents
                          }
 
--- | Move the cursor to the previous sibling.
+-- -- | Move the cursor to the previous sibling.
 prev :: forall a. Loc a -> Maybe (Loc a)
 prev (Loc r) =
   case r.before of
@@ -55,7 +59,7 @@ prev (Loc r) =
                          , parents: r.parents
                          }
 
--- | Move the cursor to the first sibling.
+-- -- | Move the cursor to the first sibling.
 first :: forall a. Loc a -> Loc a
 first l@(Loc r) = 
   case r.before of
@@ -66,7 +70,7 @@ first l@(Loc r) =
                   , parents: r.parents
                   }
 
--- | Move the cursor to the last sibling.
+-- -- | Move the cursor to the last sibling.
 last :: forall a. Loc a -> Loc a
 last l@(Loc r) = 
   case reverse r.after of
@@ -77,12 +81,12 @@ last l@(Loc r) =
                   , parents: r.parents
                   }
 
--- | Move the cursor to the parent `Node`.
+-- -- | Move the cursor to the parent `Node`.
 up :: forall a. Loc a -> Maybe (Loc a)
 up l@(Loc r) = 
   case r.parents of
     Nil -> Nothing
-    (p:ps) -> Just $ Loc { node: mkTree (value p) (siblings l)
+    (p:ps) -> Just $ Loc { node: (value p) :< (siblings l)
                          , before: before p
                          , after: after p
                          , parents: ps
@@ -97,14 +101,14 @@ root l =
 
 -- | Move the cursor to the first child of the current `Node`.
 firstChild :: forall a. Loc a -> Maybe (Loc a)
-firstChild p@(Loc r) = 
-  case r.node of
-    Node { value: _, children: Nil } -> Nothing
-    Node { value: _, children: c:cs } -> 
+firstChild n =
+  case children n of
+    Nil -> Nothing
+    c:cs -> 
       Just $ Loc { node: c
                  , before: Nil
                  , after: cs
-                 , parents: p : r.parents
+                 , parents: n : (parents n)
                  } 
 
 -- | Move the cursor to the first child of the current `Node`.
@@ -174,7 +178,7 @@ setValue a l = setNode (setNodeValue a (node l)) l
 modifyValue :: forall a. (a -> a) -> Loc a -> Loc a
 modifyValue f l = setNode (modifyNodeValue f (node l)) l
 
--- insert and delete nodes
+-- -- insert and delete nodes
 
 -- | Insert a node after the current position, and move cursor to the new node.
 insertAfter :: forall a. Tree a -> Loc a -> Loc a
@@ -267,7 +271,7 @@ node :: forall a. Loc a -> Tree a
 node (Loc r) = r.node
 
 value :: forall a. Loc a -> a
-value = nodeValue <<< node
+value = head <<< node
 
 before :: forall a. Loc a -> Forest a
 before (Loc r) = r.before
@@ -279,7 +283,7 @@ parents :: forall a. Loc a -> List (Loc a)
 parents (Loc r) = r.parents
 
 children :: forall a. Loc a -> Forest a
-children = nodeChildren <<< node
+children = tail <<< node
 
 siblings :: forall a. Loc a -> Forest a 
 siblings (Loc r) = (reverse r.before) <> (r.node : r.after) 
