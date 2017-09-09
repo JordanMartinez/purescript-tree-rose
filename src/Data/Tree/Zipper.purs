@@ -8,11 +8,6 @@ import Data.List (List(..), drop, reverse, take, (!!), (:))
 import Data.Maybe (Maybe(..))
 import Data.Tree (Forest, Tree, mkTree, modifyNodeValue, setNodeValue)
 
--- import Data.Generic (class Generic, gEq, gShow)
--- import Data.List (List(..), drop, reverse, take, (!!), (:))
--- import Data.Maybe (Maybe(..))
--- import Data.Tree (Forest, Tree(..), mkTree, modifyNodeValue, nodeChildren, nodeValue, setNodeValue)
-
 -- | The `Loc` type describes the location of a `Node` inside a `Tree`. For this
 -- | we store the current `Node`, the sibling nodes that appear before the current
 -- | node, the sibling nodes that appear after the current node, and a `List` of
