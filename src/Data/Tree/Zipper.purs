@@ -3,7 +3,6 @@ module Data.Tree.Zipper where
 import Prelude
 
 import Control.Comonad.Cofree (head, tail, (:<))
-import Data.Generic (class Generic, gEq, gShow)
 import Data.List (List(..), drop, reverse, take, (!!), (:))
 import Data.Maybe (Maybe(..))
 import Data.Tree (Forest, Tree, mkTree, modifyNodeValue, setNodeValue)

@@ -4,7 +4,6 @@ import Prelude
 
 import Control.Comonad.Cofree (Cofree, head, mkCofree, tail, (:<))
 import Control.Monad.Rec.Class (Step(..), tailRec)
-import Data.Generic (class Generic)
 import Data.List (List(..), snoc, (:))
 import Data.Monoid (power)
 import Data.Traversable (Accum)
