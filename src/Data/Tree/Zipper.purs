@@ -122,11 +122,11 @@ siblingAt i l@(Loc r) =
       case (children p) !! i of
         Nothing -> Nothing
         Just c -> 
-          let before = reverse $ take i (children p)
-              after = drop (i+1) (children p)
+          let before' = reverse $ take i (children p)
+              after' = drop (i+1) (children p)
           in Just $ Loc { node: c
-                        , before: before 
-                        , after: after
+                        , before: before'
+                        , after: after'
                         , parents: r.parents
                         }
 
