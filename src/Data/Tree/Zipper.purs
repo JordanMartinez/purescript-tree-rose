@@ -2,9 +2,10 @@ module Data.Tree.Zipper where
 
 import Prelude
 
+import Control.Alt ((<|>))
 import Control.Comonad.Cofree (head, tail, (:<))
-import Data.List (List(..), drop, reverse, take, (!!), (:))
-import Data.Maybe (Maybe(..))
+import Data.List (List(Nil), drop, reverse, take, (!!), (:))
+import Data.Maybe (Maybe(Just, Nothing))
 import Data.Tree (Forest, Tree, mkTree, modifyNodeValue, setNodeValue)
 
 -- | The `Loc` type describes the location of a `Node` inside a `Tree`. For this
@@ -229,36 +230,39 @@ delete l@(Loc r) =
 
 -- Searches
 
+ -- | Search down and to the right for the first occurence where the given predicate is true and return the Loc
+findDownWhere :: ∀ a. (a -> Boolean) -> Loc a -> Maybe (Loc a)
+findDownWhere predicate loc | predicate $ value loc = Just loc
+findDownWhere predicate loc = lookNext <|> lookDown
+  where
+    lookNext = next loc >>= findDownWhere predicate
+    lookDown = down loc >>= findDownWhere predicate
+
 -- | Search for the first occurence of the value `a` downwards and to the right.
 findDown :: forall a. Eq a => a -> Loc a -> Maybe (Loc a)
-findDown a l@(Loc r) = 
-  if a == (value l) 
-    then (Just l) 
-    else 
-      case next l of
-        Just n -> findDown a n
-        Nothing ->
-          case down l of
-            Just n' -> findDown a n'
-            Nothing -> Nothing            
+findDown a = findDownWhere ( _ == a)
 
--- | Search for the first occurence of the value `a` upwards and to the left.
+-- | Search to the left and up for the first occurence where the given predicate is true and return the Loc
+findUpWhere :: ∀ a. (a -> Boolean) -> Loc a -> Maybe (Loc a) 
+findUpWhere predicate loc | predicate $ value loc = Just loc
+findUpWhere predicate loc = lookPrev <|> lookUp
+  where
+    lookPrev  = prev loc  >>= findUpWhere predicate
+    lookUp    = up loc    >>= findUpWhere predicate
+
+-- | Search for the first occurence of the value `a` upwards and to the left,
 findUp :: forall a. Eq a => a -> Loc a -> Maybe (Loc a)
-findUp a l@(Loc r) = 
-  if a == (value l) 
-    then (Just l) 
-    else 
-      case prev l of
-        Just n -> findUp a n
-        Nothing ->
-          case up l of
-            Just n' -> findUp a n'
-            Nothing -> Nothing            
+findUp a = findUpWhere (_ == a)
+
+-- | Search from the root of the tree for the first occurrence where the given predicate is truen and return the Loc
+findFromRootWhere :: ∀ a. (a -> Boolean) -> Loc a -> Maybe (Loc a)
+findFromRootWhere predicate loc | predicate $ value loc = Just loc
+findFromRootWhere predicate loc = findDownWhere predicate $ root loc
 
 -- | Search for the first occurence of the value `a` starting from the root of
 -- | the tree.
 findFromRoot :: forall a. Eq a => a -> Loc a -> Maybe (Loc a)
-findFromRoot a = (findDown a) <<< root
+findFromRoot a = findFromRootWhere (_ == a)
 
 -- Setters and Getters
 node :: forall a. Loc a -> Tree a 
