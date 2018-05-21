@@ -264,6 +264,22 @@ findFromRootWhere predicate loc = findDownWhere predicate $ root loc
 findFromRoot :: forall a. Eq a => a -> Loc a -> Maybe (Loc a)
 findFromRoot a = findFromRootWhere (_ == a)
 
+flattenLocDepthFirst :: ∀ a. Loc a -> List (Loc a)
+flattenLocDepthFirst loc = loc : (go loc)
+  where 
+    go :: Loc a -> List (Loc a)
+    go goLoc = 
+      let 
+        downs = goDir goLoc down 
+        nexts = goDir goLoc next
+      in 
+        downs <> nexts
+
+    goDir :: Loc a -> (Loc a -> Maybe (Loc a)) -> List (Loc a)
+    goDir loc' dirFn = case (dirFn loc') of 
+      Just justLoc' -> loc' : go justLoc'
+      Nothing   -> Nil
+
 -- Setters and Getters
 node :: forall a. Loc a -> Tree a 
 node (Loc r) = r.node

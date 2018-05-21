@@ -21,7 +21,7 @@ mkTree = mkCofree
 drawTree :: Tree String -> String
 drawTree t = tailRec go {level: 0, drawn: (head t) <> "\n", current: (tail t)}
   where
-    go :: _ -> Step _ String
+    go :: { current :: List (Tree String) , drawn :: String , level :: Int } -> Step { current :: List (Tree String) , drawn :: String , level :: Int } String
     go {level: l, drawn: s, current: Nil} = Done s
     go {level: l, drawn: s, current: c:cs } = 
       let drawn = (power "       " l) <> "|----> " <> (head c) <> "\n" in
@@ -39,7 +39,7 @@ scanTree f b n =
   let fb = f (head n) b 
   in fb :< (tailRec go {b: fb, current: (tail n), final: Nil})
   where
-    go :: _ -> Step _ (Forest b)
+    go :: { final :: List (Cofree List b) , current :: List (Cofree List a) , b :: b } -> Step { final :: List (Cofree List b) , current :: List (Cofree List a) , b :: b } (Forest b)
     go {b: b', current: Nil, final: final} = Done final
     go {b: b', current: c:cs, final: final} = 
       let fb' = f (head c) b' 
@@ -52,7 +52,7 @@ scanTreeAccum f b n =
   let fb = f (head n) b 
   in fb.value :< (tailRec go {b: fb.accum , current: (tail n), final: Nil})
   where
-    go :: _ -> Step _ (Forest c)
+    go :: { final :: List (Cofree List c) , current :: List (Cofree List a) , b :: b } -> Step { final :: List (Cofree List c) , current :: List (Cofree List a) , b :: b } (Forest c)
     go {b: b', current: Nil, final: final} = Done final
     go {b: b', current: c:cs, final: final} = 
       let fb' = f (head c) b' 
