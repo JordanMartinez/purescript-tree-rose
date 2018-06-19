@@ -3,18 +3,16 @@ module Test.Main where
 import Prelude
 
 import Control.Comonad.Cofree (head, (:<))
-import Control.Monad.Eff (Eff)
-import Control.Monad.Aff.Console (log)
 import Data.List (List(Nil), (:))
 import Data.Maybe (Maybe(..), fromJust)
-import Data.Tree (Tree, mkTree, scanTree, showTree)
+import Data.Tree (Tree, mkTree, scanTree)
 import Data.Tree.Zipper (down, findDownWhere, findFromRoot, findUp, flattenLocDepthFirst, fromTree, insertAfter, modifyValue, next, toTree, value)
-import Debug.Trace (spy)
+import Effect (Effect)
 import Partial.Unsafe (unsafePartial)
 import Test.Spec (describe, it)
 import Test.Spec.Assertions (shouldEqual)
 import Test.Spec.Reporter (consoleReporter)
-import Test.Spec.Runner (RunnerEffects, run)
+import Test.Spec.Runner (run)
 
 sampleTree :: Tree Int
 sampleTree = 
@@ -30,7 +28,7 @@ sampleTree =
       )
     : Nil
 
-main :: forall e. Eff (RunnerEffects e) Unit
+main :: Effect Unit
 main = run [consoleReporter] do 
   describe "Tree" do    
 
@@ -259,8 +257,8 @@ main = run [consoleReporter] do
 
     it "Should flatten the Tree into a list of locations following a depth first pattern" do
       let flat = map value $ flattenLocDepthFirst $ fromTree sampleTree
-      -- log $ showTree sampleTree
-      -- log $ show flat
+      --log $ showTree sampleTree
+      --log $ show flat
       shouldEqual flat (1 : 2 : 3 : 4 : 5 : 6 : 7 : 8 : Nil)
 
 
