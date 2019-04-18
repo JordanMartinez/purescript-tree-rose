@@ -19,18 +19,42 @@ mkTree = mkCofree
 
 -- | Draw a 2D `String` representation of a `Tree String`.
 drawTree :: Tree String -> String
-drawTree t = tailRec go {level: 0, drawn: (head t) <> "\n", current: (tail t)}
+drawTree = drawTree' 0
+
+-- | Draw a 2D `String` representation of a `Tree String`,
+-- | starting the indent at the given level
+drawTree' :: Int -> Tree String -> String
+drawTree' level t =
+  let
+    treeRoot = (power "       " level) <> "|----> " <> (head t) <> "\n"
+    treeChildren = drawForest' (level + 1) (tail t)
+  in treeRoot <> treeChildren
+
+-- | Draw a 2D `String` representation of a `Forest String`,
+drawForest :: Forest String -> String
+drawForest = drawForest' 0
+
+-- | Draw a 2D `String` representation of a `Forest String`,
+-- | starting the indent at the given level
+drawForest' :: Int -> Forest String -> String
+drawForest' level forest = tailRec goForest { level: level, drawn: "", current: forest }
   where
-    go :: { current :: Forest String , drawn :: String , level :: Int } -> Step { current :: Forest String , drawn :: String , level :: Int } String
-    go {level: l, drawn: s, current: Nil} = Done s
-    go {level: l, drawn: s, current: c:cs } = 
-      let drawn = (power "       " l) <> "|----> " <> (head c) <> "\n" in
-      Loop {level: l, drawn: s <> drawn <> (tailRec go {level: l + 1, drawn: "", current: (tail c)})  , current: cs}
+    goForest ::      { current :: Forest String , drawn :: String , level :: Int }
+             -> Step { current :: Forest String , drawn :: String , level :: Int } String
+    goForest {level: l, drawn: s, current: Nil} = Done s
+    goForest {level: l, drawn: s, current: c:cs } =
+      let drawnTree = drawTree' l c in
+      Loop {level: l, drawn: s <> drawnTree, current: cs}
 
 -- | Draw a 2D `String`  representation of a `Tree` composed of `Show`able
 -- | elements.
 showTree :: forall a. Show a => Tree a -> String
-showTree = drawTree <<< (map show)
+showTree tree = drawTree (show <$> tree)
+
+-- | Draw a 2D `String`  representation of a `Forest` composed of `Show`able
+-- | elements.
+showForest :: forall a. Show a => Forest a -> String
+showForest forest = drawForest ((\tree -> show <$> tree) <$> forest)
 
 -- | Scan a `Tree`, accumulating values of `b` there are constant across `Node`s
 -- | that have the same parent.
