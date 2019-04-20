@@ -23,12 +23,7 @@ newtype Loc a = Loc { node :: Tree a
                     , parents :: List (Loc a)
                     }
 
-instance eqLoc :: Eq a => Eq (Loc a) where
-  eq (Loc r1) (Loc r2) =
-       r1.node == r2.node
-    && r1.before == r2.before
-    && r1.after == r2.after
-    && r1.parents == r2.parents
+derive newtype instance eqLoc :: Eq a => Eq (Loc a)
 
 -- -- Cursor movement
 
@@ -37,32 +32,29 @@ next :: forall a. Loc a -> Maybe (Loc a)
 next (Loc r) =
   case r.after of
     Nil -> Nothing
-    (c:cs) -> Just $ Loc { node: c
-                         , before: r.node : r.before
-                         , after: cs
-                         , parents: r.parents
-                         }
+    (c:cs) -> Just $ Loc r { node = c
+                           , before = r.node : r.before
+                           , after = cs
+                           }
 
 -- -- | Move the cursor to the previous sibling.
 prev :: forall a. Loc a -> Maybe (Loc a)
 prev (Loc r) =
   case r.before of
     Nil -> Nothing
-    (c:cs) -> Just $ Loc { node: c
-                         , before: cs
-                         , after: r.node : r.after
-                         , parents: r.parents
-                         }
+    (c:cs) -> Just $ Loc r { node = c
+                           , before = cs
+                           , after = r.node : r.after
+                           }
 
 -- -- | Move the cursor to the first sibling.
 first :: forall a. Loc a -> Loc a
 first l@(Loc r) =
   case r.before of
     Nil -> l
-    c:cs -> Loc $ { node: c
-                  , before: Nil
-                  , after: (reverse cs) <> r.after
-                  , parents: r.parents
+    c:cs -> Loc r { node = c
+                  , before = Nil
+                  , after = (reverse cs) <> r.after
                   }
 
 -- -- | Move the cursor to the last sibling.
@@ -70,10 +62,9 @@ last :: forall a. Loc a -> Loc a
 last l@(Loc r) =
   case reverse r.after of
     Nil -> l
-    c:cs -> Loc $ { node: c
-                  , before: cs <> (r.node : r.before)
-                  , after: Nil
-                  , parents: r.parents
+    c:cs -> Loc r { node = c
+                  , before = cs <> (r.node : r.before)
+                  , after = Nil
                   }
 
 -- -- | Move the cursor to the parent `Node`.
@@ -116,20 +107,16 @@ lastChild p@(Loc r) =  last <$> down p
 
 -- | Move the cursor to a specific sibling by it's index.
 siblingAt :: forall a. Int -> Loc a -> Maybe (Loc a)
-siblingAt i l@(Loc r) =
-  case up l of
-    Nothing -> Nothing
-    Just p@(Loc r') ->
-      case (children p) !! i of
-        Nothing -> Nothing
-        Just c ->
-          let before' = reverse $ take i (children p)
-              after' = drop (i+1) (children p)
-          in Just $ Loc { node: c
-                        , before: before'
-                        , after: after'
-                        , parents: r.parents
-                        }
+siblingAt i l@(Loc r) = do
+  p@(Loc r') <- up l
+  c <- (children p) !! i
+  let before' = reverse $ take i (children p)
+  let after' = drop (i+1) (children p)
+  pure $ Loc { node: c
+             , before: before'
+             , after: after'
+             , parents: r.parents
+             }
 
 -- | Move the cursor to a specific child of the current `Node` by it's index.
 childAt :: forall a. Int -> Loc a -> Maybe (Loc a)
@@ -151,19 +138,11 @@ fromTree n = Loc { node: n
 
 -- | Set the `Node` at the current position.
 setNode :: forall a. Tree a -> Loc a -> Loc a
-setNode a (Loc r) = Loc { node: a
-                        , before: r.before
-                        , after: r.after
-                        , parents: r.parents
-                        }
+setNode a (Loc r) = Loc r { node = a }
 
 -- | Set the `Node` at the current position.
 modifyNode :: forall a. (Tree a -> Tree a) -> Loc a -> Loc a
-modifyNode f (Loc r) = Loc { node: f r.node
-                           , before: r.before
-                           , after: r.after
-                           , parents: r.parents
-                           }
+modifyNode f (Loc r) = Loc r { node = f r.node }
 
 -- | Set the value of the current `Node`.
 setValue :: forall a. a -> Loc a -> Loc a
