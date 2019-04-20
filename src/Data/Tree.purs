@@ -8,9 +8,12 @@ import Data.List (List(..), snoc, (:))
 import Data.Monoid (power)
 import Data.Traversable (Accum)
 
--- | A Rose, or multi-way tree, with values of type `a`.
+-- | A Rose, or multi-way tree, with values of type `a`. To access the
+-- | root of the Tree's value, use `Control.Comonad.Cofree (head)`. To
+-- | access the root's children, use `Control.Comonad.Cofree (tail)`
 type Tree a = Cofree List a
 
+-- | A type alias for the children of a Tree's root value.
 type Forest a = List (Tree a)
 
 -- | Create a `Tree` from a `Node` value of type `a` and a `Forest` of children.
@@ -59,27 +62,27 @@ showForest forest = drawForest ((\tree -> show <$> tree) <$> forest)
 -- | Scan a `Tree`, accumulating values of `b` there are constant across `Node`s
 -- | that have the same parent.
 scanTree :: forall a b. (a -> b -> b) -> b -> Tree a -> Tree b
-scanTree f b n = 
-  let fb = f (head n) b 
+scanTree f b n =
+  let fb = f (head n) b
   in fb :< (tailRec go {b: fb, current: (tail n), final: Nil})
   where
     go :: { final :: Forest b , current :: Forest a , b :: b } -> Step { final :: Forest b , current :: Forest a , b :: b } (Forest b)
     go {b: b', current: Nil, final: final} = Done final
-    go {b: b', current: c:cs, final: final} = 
-      let fb' = f (head c) b' 
+    go {b: b', current: c:cs, final: final} =
+      let fb' = f (head c) b'
       in Loop {b: b', current: cs, final: snoc final (fb' :< tailRec go {b: fb', current: (tail c), final: Nil})}
 
 -- | Scan a `Tree`, accumulating values of `b` there are constant across `Node`s
 -- | that have the same parent, and returning a `Tree` of type `c`.
 scanTreeAccum :: forall a b c. (a -> b -> Accum b c) -> b -> Tree a -> Tree c
-scanTreeAccum f b n = 
-  let fb = f (head n) b 
+scanTreeAccum f b n =
+  let fb = f (head n) b
   in fb.value :< (tailRec go {b: fb.accum , current: (tail n), final: Nil})
   where
     go :: { final :: Forest c , current :: Forest a , b :: b } -> Step { final :: Forest c , current :: Forest a , b :: b } (Forest c)
     go {b: b', current: Nil, final: final} = Done final
-    go {b: b', current: c:cs, final: final} = 
-      let fb' = f (head c) b' 
+    go {b: b', current: c:cs, final: final} =
+      let fb' = f (head c) b'
       in Loop {b: b', current: cs, final: snoc final (fb'.value :< tailRec go {b: fb'.accum, current: (tail c), final: Nil})}
 
 -- | Set the value of a node.
