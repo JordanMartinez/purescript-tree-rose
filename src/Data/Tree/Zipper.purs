@@ -103,7 +103,15 @@ down = firstChild
 
 -- | Move the cursor to the last child of the current `Node`.
 lastChild :: forall a. Loc a -> Maybe (Loc a)
-lastChild p@(Loc r) =  last <$> down p
+lastChild n =
+  case reverse (children n) of
+    Nil -> Nothing
+    c:cs ->
+      Just $ Loc { node: c
+                 , before: cs
+                 , after: Nil
+                 , parents: n : (parents n)
+                 }
 
 -- | Move the cursor to a specific sibling by it's index.
 siblingAt :: forall a. Int -> Loc a -> Maybe (Loc a)
