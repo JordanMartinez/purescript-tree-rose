@@ -50,11 +50,11 @@ prev (Loc r) =
 -- -- | Move the cursor to the first sibling.
 first :: forall a. Loc a -> Loc a
 first l@(Loc r) =
-  case r.before of
+  case reverse r.before of
     Nil -> l
     c:cs -> Loc r { node = c
                   , before = Nil
-                  , after = (reverse cs) <> r.after
+                  , after = cs <> r.after
                   }
 
 -- -- | Move the cursor to the last sibling.
