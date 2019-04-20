@@ -164,19 +164,15 @@ modifyValue f l = setNode (modifyNodeValue f (node l)) l
 
 -- | Insert a node after the current position, and move cursor to the new node.
 insertAfter :: forall a. Tree a -> Loc a -> Loc a
-insertAfter n l = Loc { node: n
-                      , after: after l
-                      , before: (node l) : (before l)
-                      , parents: parents l
-                      }
+insertAfter n (Loc r) = Loc r { node = n
+                              , before = r.node : r.before
+                              }
 
 -- | Insert a node before the current position, and move cursor to the new node.
 insertBefore :: forall a. Tree a -> Loc a -> Loc a
-insertBefore n l = Loc { node: n
-                       , after: (node l) : (after l)
-                       , before: before l
-                       , parents: parents l
-                       }
+insertBefore n (Loc r) = Loc r { node = n
+                               , after = r.node : r.after
+                               }
 
 -- | Insert a node as a child to  the current node, and move cursor to the new node.
 insertChild :: forall a. Tree a -> Loc a -> Loc a
@@ -193,19 +189,14 @@ insertChild n l =
 delete :: forall a. Loc a -> Loc a
 delete l@(Loc r) =
   case r.after of
-    c:cs -> Loc { node: c
-                , before: r.before
-                , after: cs
-                , parents: r.parents
-                }
+    c:cs -> Loc r { node = c
+                  , after = cs
+                  }
     Nil ->
       case r.before of
-        c:cs -> Loc { node: c
-                    , before: cs
-                    , after: r.after
-                    , parents: r.parents
-                    }
-
+        c:cs -> Loc r { node = c
+                      , before = cs
+                      }
         Nil ->
           case r.parents of
             Nil -> l
