@@ -8,11 +8,12 @@ import Data.Maybe (Maybe(..), fromJust)
 import Data.Tree (Tree, mkTree, scanTree)
 import Data.Tree.Zipper (down, findDownWhere, findFromRoot, findUp, flattenLocDepthFirst, fromTree, insertAfter, modifyValue, next, toTree, value, firstChild, lastChild)
 import Effect (Effect)
+import Effect.Aff (launchAff_)
 import Partial.Unsafe (unsafePartial)
 import Test.Spec (describe, it)
 import Test.Spec.Assertions (shouldEqual)
 import Test.Spec.Reporter (consoleReporter)
-import Test.Spec.Runner (run)
+import Test.Spec.Runner (runSpec)
 
 sampleTree :: Tree Int
 sampleTree =
@@ -29,7 +30,7 @@ sampleTree =
     : Nil
 
 main :: Effect Unit
-main = run [consoleReporter] do
+main = launchAff_ $ runSpec [consoleReporter] do
   describe "Tree" do
 
     it "mkTree" do
