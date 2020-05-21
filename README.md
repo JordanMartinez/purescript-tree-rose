@@ -4,6 +4,8 @@
 
 Multi-way trees (Rose Trees) with Zippers.
 
+This is a maintained fork of `purescript-tree`.
+
 ## Installation
 
 ```
