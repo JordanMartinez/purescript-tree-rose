@@ -1,6 +1,6 @@
 # purescript-tree-rose
 
-[![Build status](https://img.shields.io/travis/jordanmartinez/purescript-tree-rose.svg)](https://travis-ci.org/jordanmartinez/purescript-tree-rose)
+[![Build status](https://img.shields.io/travis/jordanmartinez/purescript-tree-rose.svg)](https://travis-ci.com/jordanmartinez/purescript-tree-rose)
 
 Multi-way trees (Rose Trees) with Zippers.
 
