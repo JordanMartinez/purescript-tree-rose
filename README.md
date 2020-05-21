@@ -1,13 +1,19 @@
-# purescript-tree
+# purescript-tree-rose
 
-[![Build status](https://img.shields.io/travis/dmbfm/purescript-tree.svg)](https://travis-ci.org/dmbfm/purescript-tree)
+[![Build status](https://img.shields.io/travis/jordanmartinez/purescript-tree-rose.svg)](https://travis-ci.org/jordanmartinez/purescript-tree-rose)
 
-Multi-way trees with Zippers.
+Multi-way trees (Rose Trees) with Zippers.
 
 ## Installation
 
 ```
-bower install purescript-tree
+{ tree-rose =
+    { dependencies = [ "prelude", "lists", "free" ]
+    , version = "master"
+    , repo = "https://github.com/JordanMartinez/purescript-tree-rose.git"
+    }
+}
+
 ```
 
 ## Documentation

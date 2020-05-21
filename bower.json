@@ -1,5 +1,5 @@
 {
-  "name": "purescript-tree",
+  "name": "purescript-tree-rose",
   "license": "MIT",
   "ignore": [
     "**/.*",
@@ -9,7 +9,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git://github.com/jordamartinez/purescript-tree.git"
+    "url": "git://github.com/jordamartinez/purescript-tree-rose.git"
   },
   "dependencies": {
     "purescript-prelude": "^4.1.1",
