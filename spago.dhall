@@ -2,8 +2,8 @@
 Welcome to a Spago project!
 You can edit this file as you like.
 -}
-{ sources = [ "src/**/*.purs", "test/**/*.purs" ]
+{ sources = [ "src/**/*.purs" ]
 , name = "my-project"
-, dependencies = [ "prelude", "console", "lists", "free", "spec" ]
+, dependencies = [ "prelude", "lists", "free" ]
 , packages = ./packages.dhall
 }
