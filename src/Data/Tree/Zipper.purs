@@ -17,11 +17,12 @@ import Data.Tree (Forest, Tree, mkTree, modifyNodeValue, setNodeValue)
 -- | tree to reach the level of the current `Node` starting from the tree's root,
 -- | and the `before` and `after` fields describe its location in the current
 -- | level.
-newtype Loc a = Loc { node :: Tree a
-                    , before :: Forest a
-                    , after :: Forest a
-                    , parents :: List (Loc a)
-                    }
+newtype Loc a = Loc
+  { node :: Tree a
+  , before :: Forest a
+  , after :: Forest a
+  , parents :: List (Loc a)
+  }
 
 derive newtype instance eqLoc :: Eq a => Eq (Loc a)
 
@@ -32,51 +33,56 @@ next :: forall a. Loc a -> Maybe (Loc a)
 next (Loc r) =
   case r.after of
     Nil -> Nothing
-    (c:cs) -> Just $ Loc r { node = c
-                           , before = r.node : r.before
-                           , after = cs
-                           }
+    (c : cs) -> Just $ Loc r
+      { node = c
+      , before = r.node : r.before
+      , after = cs
+      }
 
 -- -- | Move the cursor to the previous sibling.
 prev :: forall a. Loc a -> Maybe (Loc a)
 prev (Loc r) =
   case r.before of
     Nil -> Nothing
-    (c:cs) -> Just $ Loc r { node = c
-                           , before = cs
-                           , after = r.node : r.after
-                           }
+    (c : cs) -> Just $ Loc r
+      { node = c
+      , before = cs
+      , after = r.node : r.after
+      }
 
 -- -- | Move the cursor to the first sibling.
 first :: forall a. Loc a -> Loc a
 first l@(Loc r) =
   case reverse r.before of
     Nil -> l
-    c:cs -> Loc r { node = c
-                  , before = Nil
-                  , after = cs <> r.after
-                  }
+    c : cs -> Loc r
+      { node = c
+      , before = Nil
+      , after = cs <> r.after
+      }
 
 -- -- | Move the cursor to the last sibling.
 last :: forall a. Loc a -> Loc a
 last l@(Loc r) =
   case reverse r.after of
     Nil -> l
-    c:cs -> Loc r { node = c
-                  , before = cs <> (r.node : r.before)
-                  , after = Nil
-                  }
+    c : cs -> Loc r
+      { node = c
+      , before = cs <> (r.node : r.before)
+      , after = Nil
+      }
 
 -- -- | Move the cursor to the parent `Node`.
 up :: forall a. Loc a -> Maybe (Loc a)
 up l@(Loc r) =
   case r.parents of
     Nil -> Nothing
-    (p:ps) -> Just $ Loc { node: (value p) :< (siblings l)
-                         , before: before p
-                         , after: after p
-                         , parents: ps
-                         }
+    (p : ps) -> Just $ Loc
+      { node: (value p) :< (siblings l)
+      , before: before p
+      , after: after p
+      , parents: ps
+      }
 
 -- | Move the cursor to the root of the tree.
 root :: forall a. Loc a -> Loc a
@@ -90,12 +96,13 @@ firstChild :: forall a. Loc a -> Maybe (Loc a)
 firstChild n =
   case children n of
     Nil -> Nothing
-    c:cs ->
-      Just $ Loc { node: c
-                 , before: Nil
-                 , after: cs
-                 , parents: n : (parents n)
-                 }
+    c : cs ->
+      Just $ Loc
+        { node: c
+        , before: Nil
+        , after: cs
+        , parents: n : (parents n)
+        }
 
 -- | Move the cursor to the first child of the current `Node`.
 down :: forall a. Loc a -> Maybe (Loc a)
@@ -106,12 +113,13 @@ lastChild :: forall a. Loc a -> Maybe (Loc a)
 lastChild n =
   case reverse (children n) of
     Nil -> Nothing
-    c:cs ->
-      Just $ Loc { node: c
-                 , before: cs
-                 , after: Nil
-                 , parents: n : (parents n)
-                 }
+    c : cs ->
+      Just $ Loc
+        { node: c
+        , before: cs
+        , after: Nil
+        , parents: n : (parents n)
+        }
 
 -- | Move the cursor to a specific sibling by it's index.
 siblingAt :: forall a. Int -> Loc a -> Maybe (Loc a)
@@ -119,17 +127,17 @@ siblingAt i l@(Loc r) = do
   p@(Loc r') <- up l
   c <- (children p) !! i
   let before' = reverse $ take i (children p)
-  let after' = drop (i+1) (children p)
-  pure $ Loc { node: c
-             , before: before'
-             , after: after'
-             , parents: r.parents
-             }
+  let after' = drop (i + 1) (children p)
+  pure $ Loc
+    { node: c
+    , before: before'
+    , after: after'
+    , parents: r.parents
+    }
 
 -- | Move the cursor to a specific child of the current `Node` by it's index.
 childAt :: forall a. Int -> Loc a -> Maybe (Loc a)
 childAt i p = (firstChild p) >>= (siblingAt i)
-
 
 -- | Retrieve the `Tree` representation, i.e., returns the root `Node` of the
 -- | current tree.
@@ -138,11 +146,12 @@ toTree = node <<< root
 
 -- | Get a `Loc`ation representation from a given `Tree`.
 fromTree :: forall a. Tree a -> Loc a
-fromTree n = Loc { node: n
-                 , before: Nil
-                 , after: Nil
-                 , parents: Nil
-                 }
+fromTree n = Loc
+  { node: n
+  , before: Nil
+  , after: Nil
+  , parents: Nil
+  }
 
 -- | Set the `Node` at the current position.
 setNode :: forall a. Tree a -> Loc a -> Loc a
@@ -164,69 +173,75 @@ modifyValue f l = setNode (modifyNodeValue f (node l)) l
 
 -- | Insert a node after the current position, and move cursor to the new node.
 insertAfter :: forall a. Tree a -> Loc a -> Loc a
-insertAfter n (Loc r) = Loc r { node = n
-                              , before = r.node : r.before
-                              }
+insertAfter n (Loc r) = Loc r
+  { node = n
+  , before = r.node : r.before
+  }
 
 -- | Insert a node before the current position, and move cursor to the new node.
 insertBefore :: forall a. Tree a -> Loc a -> Loc a
-insertBefore n (Loc r) = Loc r { node = n
-                               , after = r.node : r.after
-                               }
+insertBefore n (Loc r) = Loc r
+  { node = n
+  , after = r.node : r.after
+  }
 
 -- | Insert a node as a child to  the current node, and move cursor to the new node.
 insertChild :: forall a. Tree a -> Loc a -> Loc a
 insertChild n l =
   case down l of
     Just c -> insertAfter n c
-    Nothing -> Loc { node: n
-                   , after: Nil
-                   , before: Nil
-                   , parents: l : (parents l)
-                   }
+    Nothing -> Loc
+      { node: n
+      , after: Nil
+      , before: Nil
+      , parents: l : (parents l)
+      }
 
 -- | Delete the node in the current position.
 delete :: forall a. Loc a -> Loc a
 delete l@(Loc r) =
   case r.after of
-    c:cs -> Loc r { node = c
-                  , after = cs
-                  }
+    c : cs -> Loc r
+      { node = c
+      , after = cs
+      }
     Nil ->
       case r.before of
-        c:cs -> Loc r { node = c
-                      , before = cs
-                      }
+        c : cs -> Loc r
+          { node = c
+          , before = cs
+          }
         Nil ->
           case r.parents of
             Nil -> l
-            c:cs -> Loc { node: mkTree (value c) Nil
-                        , before: before c
-                        , after: after c
-                        , parents: parents c
-                        }
+            c : cs -> Loc
+              { node: mkTree (value c) Nil
+              , before: before c
+              , after: after c
+              , parents: parents c
+              }
 
 -- Searches
 
- -- | Search down and to the right for the first occurence where the given predicate is true and return the Loc
+-- | Search down and to the right for the first occurence where the given predicate is true and return the Loc
 findDownWhere :: ∀ a. (a -> Boolean) -> Loc a -> Maybe (Loc a)
 findDownWhere predicate loc | predicate $ value loc = Just loc
 findDownWhere predicate loc = lookNext <|> lookDown
   where
-    lookNext = next loc >>= findDownWhere predicate
-    lookDown = down loc >>= findDownWhere predicate
+  lookNext = next loc >>= findDownWhere predicate
+  lookDown = down loc >>= findDownWhere predicate
 
 -- | Search for the first occurence of the value `a` downwards and to the right.
 findDown :: forall a. Eq a => a -> Loc a -> Maybe (Loc a)
-findDown a = findDownWhere ( _ == a)
+findDown a = findDownWhere (_ == a)
 
 -- | Search to the left and up for the first occurence where the given predicate is true and return the Loc
 findUpWhere :: ∀ a. (a -> Boolean) -> Loc a -> Maybe (Loc a)
 findUpWhere predicate loc | predicate $ value loc = Just loc
 findUpWhere predicate loc = lookPrev <|> lookUp
   where
-    lookPrev  = prev loc  >>= findUpWhere predicate
-    lookUp    = up loc    >>= findUpWhere predicate
+  lookPrev = prev loc >>= findUpWhere predicate
+  lookUp = up loc >>= findUpWhere predicate
 
 -- | Search for the first occurence of the value `a` upwards and to the left,
 findUp :: forall a. Eq a => a -> Loc a -> Maybe (Loc a)
@@ -246,20 +261,18 @@ findFromRoot a = findFromRootWhere (_ == a)
 flattenLocDepthFirst :: ∀ a. Loc a -> List (Loc a)
 flattenLocDepthFirst loc = loc : (go loc)
   where
-    go :: Loc a -> List (Loc a)
-    go loc' =
-      let
-        downs = goDir loc' down
-        nexts = goDir loc' next
-      in
-        downs <> nexts
+  go :: Loc a -> List (Loc a)
+  go loc' =
+    let
+      downs = goDir loc' down
+      nexts = goDir loc' next
+    in
+      downs <> nexts
 
-    goDir :: Loc a -> (Loc a -> Maybe (Loc a)) -> List (Loc a)
-    goDir loc' dirFn = case (dirFn loc') of
-      Just l  -> l : go l
-      Nothing -> Nil
-
-
+  goDir :: Loc a -> (Loc a -> Maybe (Loc a)) -> List (Loc a)
+  goDir loc' dirFn = case (dirFn loc') of
+    Just l -> l : go l
+    Nothing -> Nil
 
 -- Setters and Getters
 node :: forall a. Loc a -> Tree a

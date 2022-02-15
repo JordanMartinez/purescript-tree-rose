@@ -27,11 +27,11 @@ drawTree = drawTree' 0
 -- | Draw a 2D `String` representation of a `Tree String`,
 -- | starting the indent at the given level
 drawTree' :: Int -> Tree String -> String
-drawTree' level t =
+drawTree' level t = do
   let
     treeRoot = (power "       " level) <> "|----> " <> (head t) <> "\n"
     treeChildren = drawForest' (level + 1) (tail t)
-  in treeRoot <> treeChildren
+  treeRoot <> treeChildren
 
 -- | Draw a 2D `String` representation of a `Forest String`,
 drawForest :: Forest String -> String
@@ -42,12 +42,14 @@ drawForest = drawForest' 0
 drawForest' :: Int -> Forest String -> String
 drawForest' level forest = tailRec goForest { level: level, drawn: "", current: forest }
   where
-    goForest ::      { current :: Forest String , drawn :: String , level :: Int }
-             -> Step { current :: Forest String , drawn :: String , level :: Int } String
-    goForest {level: l, drawn: s, current: Nil} = Done s
-    goForest {level: l, drawn: s, current: c:cs } =
-      let drawnTree = drawTree' l c in
-      Loop {level: l, drawn: s <> drawnTree, current: cs}
+  goForest
+    :: { current :: Forest String, drawn :: String, level :: Int }
+    -> Step { current :: Forest String, drawn :: String, level :: Int } String
+  goForest { level: l, drawn: s, current: Nil } = Done s
+  goForest { level: l, drawn: s, current: c : cs } = do
+    let
+      drawnTree = drawTree' l c
+    Loop { level: l, drawn: s <> drawnTree, current: cs }
 
 -- | Draw a 2D `String`  representation of a `Tree` composed of `Show`able
 -- | elements.
@@ -62,28 +64,32 @@ showForest forest = drawForest ((\tree -> show <$> tree) <$> forest)
 -- | Scan a `Tree`, accumulating values of `b` there are constant across `Node`s
 -- | that have the same parent.
 scanTree :: forall a b. (a -> b -> b) -> b -> Tree a -> Tree b
-scanTree f b n =
-  let fb = f (head n) b
-  in fb :< (tailRec go {b: fb, current: (tail n), final: Nil})
+scanTree f b n = do
+  let
+    fb = f (head n) b
+  fb :< (tailRec go { b: fb, current: (tail n), final: Nil })
   where
-    go :: { final :: Forest b , current :: Forest a , b :: b } -> Step { final :: Forest b , current :: Forest a , b :: b } (Forest b)
-    go {b: b', current: Nil, final: final} = Done final
-    go {b: b', current: c:cs, final: final} =
-      let fb' = f (head c) b'
-      in Loop {b: b', current: cs, final: snoc final (fb' :< tailRec go {b: fb', current: (tail c), final: Nil})}
+  go :: { final :: Forest b, current :: Forest a, b :: b } -> Step { final :: Forest b, current :: Forest a, b :: b } (Forest b)
+  go { b: b', current: Nil, final: final } = Done final
+  go { b: b', current: c : cs, final: final } = do
+    let
+      fb' = f (head c) b'
+    Loop { b: b', current: cs, final: snoc final (fb' :< tailRec go { b: fb', current: (tail c), final: Nil }) }
 
 -- | Scan a `Tree`, accumulating values of `b` there are constant across `Node`s
 -- | that have the same parent, and returning a `Tree` of type `c`.
 scanTreeAccum :: forall a b c. (a -> b -> Accum b c) -> b -> Tree a -> Tree c
-scanTreeAccum f b n =
-  let fb = f (head n) b
-  in fb.value :< (tailRec go {b: fb.accum , current: (tail n), final: Nil})
+scanTreeAccum f b n = do
+  let
+    fb = f (head n) b
+  fb.value :< (tailRec go { b: fb.accum, current: (tail n), final: Nil })
   where
-    go :: { final :: Forest c , current :: Forest a , b :: b } -> Step { final :: Forest c , current :: Forest a , b :: b } (Forest c)
-    go {b: b', current: Nil, final: final} = Done final
-    go {b: b', current: c:cs, final: final} =
-      let fb' = f (head c) b'
-      in Loop {b: b', current: cs, final: snoc final (fb'.value :< tailRec go {b: fb'.accum, current: (tail c), final: Nil})}
+  go :: { final :: Forest c, current :: Forest a, b :: b } -> Step { final :: Forest c, current :: Forest a, b :: b } (Forest c)
+  go { b: b', current: Nil, final: final } = Done final
+  go { b: b', current: c : cs, final: final } = do
+    let
+      fb' = f (head c) b'
+    Loop { b: b', current: cs, final: snoc final (fb'.value :< tailRec go { b: fb'.accum, current: (tail c), final: Nil }) }
 
 -- | Set the value of a node.
 setNodeValue :: forall a. a -> Tree a -> Tree a
@@ -94,5 +100,5 @@ modifyNodeValue :: forall a. (a -> a) -> Tree a -> Tree a
 modifyNodeValue f n = f (head n) :< tail n
 
 -- | Append a child to a node.
-appendChild :: forall a. Tree a  -> Tree a -> Tree a
+appendChild :: forall a. Tree a -> Tree a -> Tree a
 appendChild c n = head n :< snoc (tail n) c
