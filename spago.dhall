@@ -6,6 +6,14 @@ You can edit this file as you like.
 , license = "MIT"
 , repository = "https://github.com/JordanMartinez/purescript-tree-rose"
 , name = "my-project"
-, dependencies = [ "prelude", "lists", "free" ]
+, dependencies =
+  [ "control"
+  , "foldable-traversable"
+  , "free"
+  , "lists"
+  , "maybe"
+  , "prelude"
+  , "tailrec"
+  ]
 , packages = ./packages.dhall
 }
