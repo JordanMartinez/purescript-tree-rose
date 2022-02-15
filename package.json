@@ -1,6 +1,6 @@
 {
   "name": "purescript-tree",
-  "version": "1.0.0",
+  "version": "3.0.0",
   "description": "A Tree data structure inspired by haskell's Data.Tree",
   "main": "index.js",
   "author": "Daniel Fortes",
