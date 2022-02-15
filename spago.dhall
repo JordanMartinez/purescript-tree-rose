@@ -1,7 +1,7 @@
 { sources = [ "src/**/*.purs" ]
 , license = "MIT"
 , repository = "https://github.com/JordanMartinez/purescript-tree-rose"
-, name = "my-project"
+, name = "tree-rose"
 , dependencies =
   [ "control"
   , "foldable-traversable"
