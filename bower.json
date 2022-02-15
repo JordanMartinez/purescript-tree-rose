@@ -1,24 +1,30 @@
 {
-  "name": "purescript-tree-rose",
-  "license": "MIT",
+  "name": "purescript-my-project",
+  "license": [
+    "MIT"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/JordanMartinez/purescript-tree-rose.git"
+  },
   "ignore": [
     "**/.*",
     "node_modules",
     "bower_components",
     "output"
   ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/jordanmartinez/purescript-tree-rose.git"
-  },
   "dependencies": {
-    "purescript-prelude": "^4.1.1",
-    "purescript-lists": "^5.4.1",
-    "purescript-free": "^5.2.0"
+    "purescript-control": "^v5.0.0",
+    "purescript-foldable-traversable": "^v5.0.1",
+    "purescript-free": "^v6.2.0",
+    "purescript-lists": "^v6.0.1",
+    "purescript-maybe": "^v5.0.0",
+    "purescript-prelude": "^v5.0.1",
+    "purescript-tailrec": "^v5.0.1"
   },
   "devDependencies": {
-    "purescript-psci-support": "^4.0.0",
-    "purescript-console": "^4.4.0",
-    "purescript-spec": "^4.0.1"
+    "purescript-psci-support": "^5.0.0",
+    "purescript-console": "^5.0.0",
+    "purescript-spec": "^5.0.1"
   }
 }
