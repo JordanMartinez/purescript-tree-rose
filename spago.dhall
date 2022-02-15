@@ -1,6 +1,6 @@
 { sources = [ "src/**/*.purs" ]
 , license = "MIT"
-, repository = "https://github.com/JordanMartinez/purescript-tree-rose"
+, repository = "https://github.com/jordanmartinez/purescript-tree-rose"
 , name = "tree-rose"
 , dependencies =
   [ "control"
