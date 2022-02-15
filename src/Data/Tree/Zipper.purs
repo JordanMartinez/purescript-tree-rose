@@ -124,7 +124,7 @@ lastChild n =
 -- | Move the cursor to a specific sibling by it's index.
 siblingAt :: forall a. Int -> Loc a -> Maybe (Loc a)
 siblingAt i l@(Loc r) = do
-  p@(Loc r') <- up l
+  p <- up l
   c <- (children p) !! i
   let before' = reverse $ take i (children p)
   let after' = drop (i + 1) (children p)
@@ -214,7 +214,7 @@ delete l@(Loc r) =
         Nil ->
           case r.parents of
             Nil -> l
-            c : cs -> Loc
+            c : _ -> Loc
               { node: mkTree (value c) Nil
               , before: before c
               , after: after c

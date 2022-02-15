@@ -45,7 +45,7 @@ drawForest' level forest = tailRec goForest { level: level, drawn: "", current: 
   goForest
     :: { current :: Forest String, drawn :: String, level :: Int }
     -> Step { current :: Forest String, drawn :: String, level :: Int } String
-  goForest { level: l, drawn: s, current: Nil } = Done s
+  goForest { drawn: s, current: Nil } = Done s
   goForest { level: l, drawn: s, current: c : cs } = do
     let
       drawnTree = drawTree' l c
@@ -70,7 +70,7 @@ scanTree f b n = do
   fb :< (tailRec go { b: fb, current: (tail n), final: Nil })
   where
   go :: { final :: Forest b, current :: Forest a, b :: b } -> Step { final :: Forest b, current :: Forest a, b :: b } (Forest b)
-  go { b: b', current: Nil, final: final } = Done final
+  go { current: Nil, final: final } = Done final
   go { b: b', current: c : cs, final: final } = do
     let
       fb' = f (head c) b'
@@ -85,7 +85,7 @@ scanTreeAccum f b n = do
   fb.value :< (tailRec go { b: fb.accum, current: (tail n), final: Nil })
   where
   go :: { final :: Forest c, current :: Forest a, b :: b } -> Step { final :: Forest c, current :: Forest a, b :: b } (Forest c)
-  go { b: b', current: Nil, final: final } = Done final
+  go { current: Nil, final: final } = Done final
   go { b: b', current: c : cs, final: final } = do
     let
       fb' = f (head c) b'
