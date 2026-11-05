@@ -1,8 +1,8 @@
 node_js:
-  - "node"
+  - "22"
 language: node_js
 install:
-  - npm install -g purescript spago
+  - npm install -g purescript spago@1.0.5
   - spago install
 script:
-  - spago -x test.dhall test
+  - spago test
